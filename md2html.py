@@ -19,6 +19,7 @@ import markdown
 from optparse import OptionParser, OptionValueError
 import sys
 import codecs
+import subprocess
 
 cset = 'utf-8'
 
@@ -65,6 +66,12 @@ def fileWriter(filename, buf):
 	writer.write(buf)
 	writer.close()
 
+def getExecResult(cmd):
+	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	stdout_data, stderr_data = p.communicate()
+	print "finish: %d %d" % (len(stdout_data), len(stderr_data))
+	return stdout_data
+
 def replaceResult(inBuf, replacers):
 	result = inBuf
 
@@ -88,9 +95,9 @@ def getValWithStrip(cmd):
 	val = None
 	if posE!=-1:
 		val = cmd[posE+1:len(cmd)]
-		if val[0]=='"':
+		if val[0]=='"' or val[0]=="'":
 			val = val[1:len(val)]
-		if val[len(val)-1]=='"':
+		if val[len(val)-1]=='"' or val[len(val)-1]=="'":
 			val = val[0:len(val)-1]
 	return val
 
@@ -100,6 +107,8 @@ def doTinyTemplate(cmd):
 
 	if ("include" in cmd) and val!=None:
 		result = fileRead(val)
+	elif ("exec" in cmd) and val!=None:
+		result = getExecResult(val)
 
 	return result
 

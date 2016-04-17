@@ -1,8 +1,8 @@
 # What's md2html.py?
 
 It's a converter from markdown to html.
-Remarkable points are considered to use the converted result as html mail.
-In short, this tool can convert link as Content-ID for html email.
+Remarkable points are considered to use the converted result as html mail and this has tiny template engine.
+In short, this tool can convert link as Content-ID for html email and you can output html from the dynamic markdown with the template engine.
 
 # How to use
 
@@ -44,7 +44,7 @@ Options:
   -b, --bodyonly        --b if no header/footer
 ```
 
-# Advanced usage
+# Advanced usage (1)
 
 With[mail.py](https://github.com/hidenorly/mailpy), 
 
@@ -52,3 +52,33 @@ With[mail.py](https://github.com/hidenorly/mailpy),
 $ md2html.py hoge.md -o hoge.html -s bootstrap-md.css -t "Hoge" -m email
 $ cat hoge.html | mail.py -r bootstrap-md.css -s "hoge" -t html hoge@gmail.com
 ```
+
+# Advanced usgae (2)
+
+## Simple keyword replace
+
+```
+$ md2html.py hoge.md -o hoge.html -s bootstrap-md.css -t "Hoge" -m email -r HOGE1=hoge1 -r HOGE2=hoge2
+```
+
+Please note that the specified replace requests (```-r```) are applied for the inputed markdown and converted html.
+
+## Template engine
+
+```
+# Quote from file
+
+<%include="hoge.md"%>
+```
+
+You can include other file with <%include%>.
+
+```
+# Quote executed result
+
+```
+<%exec="ls -la"%>
+```
+```
+
+You can embed shell execution result. But please take care of risk on the injection vulnerability.
