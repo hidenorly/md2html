@@ -83,6 +83,41 @@ def replaceResult(inBuf, replacers):
 
 	return result
 
+def getValWithStrip(cmd):
+	posE = cmd.find("=")
+	val = None
+	if posE!=-1:
+		val = cmd[posE+1:len(cmd)]
+		if val[0]=='"':
+			val = val[1:len(val)]
+		if val[len(val)-1]=='"':
+			val = val[0:len(val)-1]
+	return val
+
+def doTinyTemplate(cmd):
+	result = cmd
+	val = getValWithStrip(cmd)
+
+	if ("include" in cmd) and val!=None:
+		result = fileRead(val)
+
+	return result
+
+def tinyTemplate(inBuf):
+	result = inBuf
+	pos = result.find("<%")
+	while pos!=-1:
+		pos2 = result.find("%>", pos)
+		if pos2==-1:
+			break
+		cmd = result[pos+2:pos2]
+		tempResult = doTinyTemplate(cmd)
+		result = result[0:pos] + tempResult + result[pos2+2:len(result)]
+		pos = result.find("<%", pos+len(tempResult))
+
+	return result
+
+
 def addPreStringIfNeed(result, key, preVal, pos):
 	pos = result[0].find(key, pos)
 	if pos!=-1:
@@ -105,6 +140,15 @@ def linkConvert(inBuf):
 
 	return result[0]
 
+def expandMultipleArgs(args):
+	if args!=None:
+		if isinstance(args, list) and len(args)==1:
+			if args[0].find(",")!=-1:
+				args = args[0].split(",")
+	else:
+		args = []
+
+	return args
 
 if __name__ == '__main__':
 	md = markdown.Markdown(extensions=['gfm'])
@@ -115,7 +159,7 @@ if __name__ == '__main__':
 	parser.add_option("-o", "--output", action="store", type="string", dest="outFilename", default=sys.stdout, help="Specify output filename")
 	parser.add_option("-s", "--css", action="store", type="string", dest="css", default="bootstrap-md.css", help="Specify css filename")
 	parser.add_option("-m", "--mode", action="store", type="string", dest="mode", default="web", help="Specify web or email")
-	parser.add_option("-r", "--replace", action="store", type="string", dest="replacers", default="", help="Specify replace key=value,...")
+	parser.add_option("-r", "--replace", action="append", type="string", dest="replacers", default=None, help="Specify replace key=value,...")
 	parser.add_option("-b", "--bodyonly", action="store_true", dest="bodyonly", default=False, help="--b if no header/footer")
 
 	(options, args) = parser.parse_args()
@@ -128,14 +172,14 @@ if __name__ == '__main__':
 	cset = options.charset
 
 	# get key-value for replacement
-	replacers = []
-	if options.replacers.find(",")!=-1:
-		replacers = options.replacers.split(",")
-	else:
-		replacers = [ options.replacers ]
+	replacers = expandMultipleArgs( options.replacers )
 
 	# read markdown
 	buf = fileRead(inFilename)
+
+	# Pre-filter : tiny template engine
+	buf = replaceResult(buf, replacers)
+	buf = tinyTemplate(buf)
 
 	# convert markdown
 	result = md.convert(buf)
@@ -144,12 +188,12 @@ if __name__ == '__main__':
 	if not options.bodyonly:
 		result = html_header + options.charset + html_header_cset_title + options.title + html_header_title_css + options.css + html_header_css_body + result + html_fotter
 
+	# Post filter
+	result = replaceResult(result, replacers)
+
 	# replace href link
 	if options.mode.find("email")!=-1:
 		result = linkConvert(result)
-
-	# replace with specified replacer
-	result = replaceResult(result, replacers)
 
 	# output the processed html
 	fileWriter( options.outFilename, result )
