@@ -69,7 +69,6 @@ def fileWriter(filename, buf):
 def getExecResult(cmd):
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	stdout_data, stderr_data = p.communicate()
-	print "finish: %d %d" % (len(stdout_data), len(stderr_data))
 	return stdout_data
 
 def replaceResult(inBuf, replacers):

@@ -46,7 +46,7 @@ Options:
 
 # Advanced usage (1)
 
-With[mail.py](https://github.com/hidenorly/mailpy), 
+With [mail.py](https://github.com/hidenorly/mailpy), 
 
 ```
 $ md2html.py hoge.md -o hoge.html -s bootstrap-md.css -t "Hoge" -m email
@@ -76,9 +76,7 @@ You can include other file with <%include%>.
 ```
 # Quote executed result
 
-```
-<%exec="ls -la"%>
-```
+<%exec="cat hoge.md"%>
 ```
 
 You can embed shell execution result. But please take care of risk on the injection vulnerability.
