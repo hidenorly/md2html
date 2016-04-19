@@ -34,8 +34,9 @@ html_header = '''<!DOCTYPE html>
 	<meta charset="'''
 html_header_cset_title = '''">
 	<title>'''
+html_css = '''<link rel="stylesheet" type="text/css" href="'''
 html_header_title_css = '''</title>
-	<link rel="stylesheet" type="text/css" href="'''
+	''' + html_css
 html_header_css_body = '''">
 </head>
 <body>
@@ -148,6 +149,19 @@ def linkConvert(inBuf):
 
 	return result[0]
 
+def embedCSS(result, cssFile):
+	posS = result.find(html_css)
+	posE = result.find('''">''', posS)
+	if posS!=-1 and posE!=-1:
+		css = fileRead(cssFile)
+		result = result[0:posS] + '''<style type="text/css">
+<!--
+''' + css + '''
+//!-->
+</style>''' + result[posE+2:len(result)]
+
+	return result
+
 def expandMultipleArgs(args):
 	if args!=None:
 		if isinstance(args, list) and len(args)==1:
@@ -201,6 +215,7 @@ if __name__ == '__main__':
 
 	# replace href link
 	if options.mode.find("email")!=-1:
+		result = embedCSS(result, options.css)
 		result = linkConvert(result)
 
 	# output the processed html
