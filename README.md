@@ -4,7 +4,20 @@ It's a converter from markdown to html.
 Remarkable points are considered to use the converted result as html mail and this has tiny template engine.
 In short, this tool can convert link as Content-ID for html email and you can output html from the dynamic markdown with the template engine.
 
-# How to use
+# Common preparation
+
+Prepare preferred css file such as http://qiita.com/gamura@github/items/cda556061b6af247b9bc, https://github.com/sindresorhus/github-markdown-css, etc.
+
+# How to use for python3
+
+## Preparation
+
+```
+$ pip3 install markdown
+$ pip3 install pymdown-extensions
+```
+
+# How to use for python2
 
 ## Preparation
 
@@ -13,7 +26,6 @@ $ pip install markdown
 $ pip install py-gfm
 ```
 
-Prepare preferred css file such as http://qiita.com/gamura@github/items/cda556061b6af247b9bc, https://github.com/sindresorhus/github-markdown-css, etc.
 
 ## Basic usage
 
